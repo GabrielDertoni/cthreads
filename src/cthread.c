@@ -54,8 +54,6 @@ void init_tasks() {
 }
 
 CTHResult spawn_task(void (*func)(void)) {
-    struct sigaction handler;
-    struct sigaction old_handler;
     
     stack_t stack;
     stack_t old_stack;
@@ -80,9 +78,12 @@ CTHResult spawn_task(void (*func)(void)) {
     
     /* Install the signal handler */
     /* Sigaction *must* be used so we can specify SA_ONSTACK */
+    struct sigaction handler;
     handler.sa_handler = &usr1_handler_create_stack;
     handler.sa_flags = SA_ONSTACK;
     sigemptyset(&handler.sa_mask);
+
+    struct sigaction old_handler;
 
     if (sigaction(SIGUSR1, &handler, &old_handler)) {
         // LF_DEBUG_OUT( "Error: sigaction failed." );
